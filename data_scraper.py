@@ -7,7 +7,8 @@ from bs4 import BeautifulSoup
 import time
 
 
-webpage = r"https://www.investing.com/indices/kenya-nse-20-historical-data"
+nse_20_url = 'https://www.investing.com/indices/kenya-nse-20-historical-data'
+nse_url = 'https://www.nse.co.ke/'
 start_date = "01/01/2012"
 ab = []
 nd = []
@@ -51,3 +52,10 @@ def scrape_investing_dot_com(url, start_date):
     driver.close()
     driver.quit()
     return ab
+
+def scrape_nse_dot_com(url):
+    page = requests.get(url, verify=False, stream=True)
+    soup = BeautifulSoup(page.text, 'lxml')
+    tickers = soup.find('div', {'class': 'modcontent'}).text.replace(u'\xa0', u'').split('|')
+    for ticker in tickers:
+    	return ticker
