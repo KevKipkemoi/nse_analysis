@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 import requests
+import time
+import csv
+import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup
 from webdriver_manager.chrome import ChromeDriverManager
-import time
 
 
 nse_20_url = 'https://www.investing.com/indices/kenya-nse-20-historical-data'
@@ -13,6 +15,7 @@ nse_url = 'https://www.nse.co.ke/'
 start_date = "01/01/2012"
 nse_20_data = []
 list_item = []
+csv_header = ['Date', 'Price', 'Open', 'High', 'Low', 'Vol', 'Change %']
 
 def scrape_investing_dot_com(url, start_date):
     # Path to chrome driver if it isn't in Windows PATH
@@ -53,6 +56,8 @@ def scrape_investing_dot_com(url, start_date):
                 nse_20_data.append(list_item[index])
     driver.close()
     driver.quit()
+    print("*" * 20)
+    print("Quitting the scraper")
     return nse_20_data
 
 def scrape_nse_dot_com(url):
@@ -62,5 +67,27 @@ def scrape_nse_dot_com(url):
     for ticker in tickers:
     	return ticker
 
+def chunks(u_list, interval):
+    # Yield successive n-sized chunks from a list
+    for i in range(0, len(u_list), interval):
+        yield u_list[i: i + interval]
+
+def build_csv(data):
+    with open('nse_20_data.csv', 'w', encoding = 'utf-8', newline = '') as csvfile:
+        links_writer = csv.writer(csvfile)
+        # Remove the headers
+        data = data[3:]
+        # Split the list into sublists of actual days
+        data = [data[i: i + 6] for i in range(0, len(data), 6)]
+        # TODO: Put 0 for the volume which is unavailable
+        print("*" * 20)
+        print("Building the csv")
+        links_writer.writerow(csv_header)
+        for item in data:
+            links_writer.writerow(item)
+        print("*" * 20)
+        print("Finished building csv")
+
 if __name__ == "__main__":
     scrape = scrape_investing_dot_com(nse_20_url, start_date)
+    build_csv(scrape)
