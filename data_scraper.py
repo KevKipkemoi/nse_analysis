@@ -79,7 +79,9 @@ def build_csv(data):
         data = data[3:]
         # Split the list into sublists of actual days
         data = [data[i: i + 6] for i in range(0, len(data), 6)]
-        # TODO: Put 0 for the volume which is unavailable
+        # Put 0 for the volume which is unavailable
+        for item in data:
+            item.insert(5, 0)
         print("*" * 20)
         print("Building the csv")
         links_writer.writerow(csv_header)
